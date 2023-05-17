@@ -1,0 +1,23 @@
+{% extends "homepage.html" %}
+
+{% block title %}Adicionar um Espetáculo{% endblock %}
+
+{% block form %}
+    <form method="POST">
+        {{ form.csrf_token }}
+
+        {{ form.name.label() }}
+        {{ form.name() }}
+
+        {{ form.synopsis.label() }}
+        {{ form.synopsis() }}
+
+        {{ form.date.label() }}
+        {{ form.date() }}
+
+        {{ form.submitButton() }}
+        
+
+
+    </form>
+{% endblock %}

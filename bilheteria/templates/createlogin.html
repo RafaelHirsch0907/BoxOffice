@@ -1,0 +1,29 @@
+{% extends "homepage.html" %}
+
+{% block title %}Crie sua conta{% endblock %}
+
+{% block form %}
+    <form method="POST">
+        {{ form.csrf_token }}
+
+        {{ form.email.label() }}
+        {{ form.email() }}
+
+        {{ form.username.label() }}
+        {{ form.username() }}
+
+        {{ form.password.label() }}
+        {{ form.password() }}
+
+        {{ form.confirm_password.label() }}
+        {{ form.confirm_password() }}
+
+        {{ form.vip.label() }}
+        {{ form.vip() }}
+
+        {{ form.submitButton() }}
+        
+
+
+    </form>
+{% endblock %}
