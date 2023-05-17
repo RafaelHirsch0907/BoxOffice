@@ -13,7 +13,8 @@ class User(dataBase.Model, UserMixin):
     password = dataBase.Column(dataBase.String, nullable=False)
     regular = dataBase.Column(dataBase.String, nullable=False, default='R')
     vip = dataBase.Column(dataBase.String, nullable=False)
-    notWhithdrawn = dataBase.Column(dataBase.Integer, default=0, nullable=False)
+    adm = dataBase.Column(dataBase.String, nullable=False, default='N')
+    notwhithdrawn = dataBase.Column(dataBase.Integer, default=0, nullable=False)
     tickets = dataBase.relationship("Ticket", backref="user", lazy=True)
     
 
@@ -22,7 +23,9 @@ class Ticket(dataBase.Model):
     #ticket = dataBase.Column(dataBase.String, default="default.png")
     status = dataBase.Column(dataBase.String, nullable=False, default='A')
     userId = dataBase.Column(dataBase.Integer, dataBase.ForeignKey('user.id'), nullable=False)
+    showId = dataBase.Column(dataBase.Integer, dataBase.ForeignKey('show.id'), nullable=False)
     vip = dataBase.Column(dataBase.String, nullable=False)
+    seat = dataBase.Column(dataBase.String, nullable=False)
     sales = dataBase.relationship("Sale", backref="sale", lazy=True)
 
 
@@ -31,6 +34,7 @@ class Sale(dataBase.Model):
     createDate = dataBase.Column(dataBase.DateTime, nullable=False, default=datetime.utcnow())
     ticketId = dataBase.Column(dataBase.Integer, dataBase.ForeignKey('ticket.id'), nullable=False)
     delivery = dataBase.Column(dataBase.String, nullable=False)
+    amountTickets = dataBase.Column(dataBase.Integer, nullable=False)
     price = dataBase.Column(dataBase.Numeric, nullable=False)
 
 
@@ -41,3 +45,4 @@ class Show(dataBase.Model):
     ticketsAvailable = dataBase.Column(dataBase.Integer, nullable=False, default=85)
     vipTicketsAvailable = dataBase.Column(dataBase.Integer, nullable=False, default=15)
     image = dataBase.Column(dataBase.String, default="default.png")
+    tickets = dataBase.relationship("Ticket", backref="user", lazy=True)
