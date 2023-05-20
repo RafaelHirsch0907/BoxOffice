@@ -1,0 +1,19 @@
+{% extends "homepage.html" %}
+
+{% block title %}
+Perfil - {{user}}
+{% endblock %}
+
+{% block body %}
+<body>
+    {%include "navbar.html"%}
+    <h1>Perfil de {{user.username}}</h1>
+    {%endif%}
+
+    <a href="{{url_for('logout')}}">Sair</a>
+    
+    {%for ticket in user.tickets%}
+        <!--<img src="{{url_for('static', filename='photos_posts/{}'.format(photo.image))}}" alt="">-->
+    {%endfor%}
+</body>
+{% endblock %}

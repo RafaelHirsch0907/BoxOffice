@@ -1,7 +1,7 @@
 from flask import render_template, url_for, redirect
 from bilheteria import app, dataBase, bcrypt
 from flask_login import login_required, login_user, logout_user, current_user
-from bilheteria.forms import FormShow, FormCreateShow, FormLogin, FormCreateLogin
+from bilheteria.forms import FormCreateShow, FormLogin, FormCreateLogin
 from bilheteria.models import User, Show
 from werkzeug.utils import secure_filename
 import os
@@ -13,7 +13,7 @@ def homepage():
         user = User.query.filter_by(email=formLogin.email.data).first()
         if user and bcrypt.check_password_hash(user.password, formLogin.password.data):
             login_user(user)
-            return redirect(url_for("profile", user_id=user.id))
+            return redirect(url_for("createshow"))#, user_id=user.id))
     return render_template("homepage.html", form=formLogin)
 
 @app.route("/createlogin", methods=["GET", "POST"])
@@ -29,15 +29,40 @@ def createlogin():
         return redirect(url_for("profile", user_id=user.id))
     return render_template("createlogin.html", form=formCreateLogin)
 
+@app.route("/profile/<user_id>", methods=["GET", "POST"])
+@login_required
+def profile(user_id):
+    if int(user_id) == int(current_user.id):
+        return render_template("profile.html", user=current_user, form=None)
+    else:
+        user = User.query.get(int(user_id))
+        return render_template("profile.html", user=user, form=None)
+
+
 @app.route("/createshow", methods=["GET", "POST"])
 @login_required
 def createshow():
     formCreateShow = FormCreateShow()
-    if formCreateShow.validate_on_submit():
-        show = Show(name=formCreateShow.name.data, password=password, email=formCreateShow.email.data, regular=True, vip=formCreateShow.vip.data, adm=False, notwhithdrawn=0)
+    if not current_user.adm:
+        return render_template("show.html", message="Acesso negado. Somente administradores podem acessar esta página.")
+    else:
+        if formCreateShow.validate_on_submit():
+            archive = formCreateShow.coverImage.data
+            securityName = secure_filename(archive.filename)
+            path = os.path.join(os.path.abspath(os.path.dirname(__file__)), app.config["UPLOAD_FOLDER"], securityName)
+            archive.save(path)
+            show = Show(name=formCreateShow.name.data, synopsis=formCreateShow.synopsis.data, coverImage=securityName, date=formCreateShow.date.data, ticketsAvailable=85, vipTicketsAvailable=15)
+            dataBase.session.add(show)
+            dataBase.session.commit()
+            return redirect(url_for("shows"))
+    return render_template("createshow.html", form=formCreateShow)
 
-        dataBase.session.add(user)
-        dataBase.session.commit()
-        login_user(user, remember=True)
-        return redirect(url_for("profile", user_id=user.id))
-    return render_template("createlogin.html", form=formCreateShow)
+@app.route("/shows")
+def show():
+    shows = Show.query.order_by(Show.name.desc()).all()
+    return render_template("shows.html", shows=shows)
+
+#@app.route("/show/<show_id>")
+#def show(show_id):
+
+#    return render_template("show.html", show=show)

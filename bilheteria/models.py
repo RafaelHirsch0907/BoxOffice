@@ -14,7 +14,7 @@ class User(dataBase.Model, UserMixin):
     regular = dataBase.Column(dataBase.Boolean, nullable=False, default=True)
     vip = dataBase.Column(dataBase.Boolean, nullable=False)
     adm = dataBase.Column(dataBase.Boolean, nullable=False, default=False)
-    notWhithdrawn = dataBase.Column(dataBase.Integer, default=0, nullable=False)
+    notwhithdrawn = dataBase.Column(dataBase.Integer, default=0, nullable=False)
     tickets = dataBase.relationship("Ticket", backref="user", lazy=True)
     
 
@@ -45,5 +45,5 @@ class Show(dataBase.Model):
     ticketsAvailable = dataBase.Column(dataBase.Integer, nullable=False, default=85)
     vipTicketsAvailable = dataBase.Column(dataBase.Integer, nullable=False, default=15)
     coverImage = dataBase.Column(dataBase.String, default="default.png")
-    date = dataBase.Column(dataBase.DateTime, nullable=False)
-    tickets = dataBase.relationship("Ticket", backref="user", lazy=True)
+    date = dataBase.Column(dataBase.DateTime, nullable=False, unique=True)
+    tickets = dataBase.relationship("Ticket", backref="show", lazy=True)

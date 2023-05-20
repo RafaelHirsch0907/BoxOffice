@@ -1,0 +1,12 @@
+{%extends "homepage.html"%}
+
+{%block body%}
+{%include "navbar.html"%}
+
+<h1>Espetáculos</h1>
+
+{%for show in shows%}
+    <img src="{{url_for('static', filename='photos_theater/{}'.format(show.coverImage))}}" alt="">
+{%endfor%}
+
+{%endblock%}
