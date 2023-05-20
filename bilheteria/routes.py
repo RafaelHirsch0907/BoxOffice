@@ -13,20 +13,22 @@ def homepage():
         user = User.query.filter_by(email=formLogin.email.data).first()
         if user and bcrypt.check_password_hash(user.password, formLogin.password.data):
             login_user(user)
-            return redirect(url_for("createshow"))#, user_id=user.id))
+            return redirect(url_for("profile", user_id=user.id))
     return render_template("homepage.html", form=formLogin)
 
 @app.route("/createlogin", methods=["GET", "POST"])
 def createlogin():
     formCreateLogin = FormCreateLogin()
     if formCreateLogin.validate_on_submit():
-        password = bcrypt.generate_password_hash(formCreateLogin.password.data)
+        password = bcrypt.generate_password_hash(formCreateLogin.password.data).decode('utf-8')
         user = User(username=formCreateLogin.username.data, password=password, email=formCreateLogin.email.data, regular=True, vip=formCreateLogin.vip.data, adm=False, notwhithdrawn=0)
-
         dataBase.session.add(user)
         dataBase.session.commit()
+        
         login_user(user, remember=True)
         return redirect(url_for("profile", user_id=user.id))
+    else:
+        return redirect(url_for("createlogin", message="Email ou senha incorretos, tente novamente"))
     return render_template("createlogin.html", form=formCreateLogin)
 
 @app.route("/profile/<user_id>", methods=["GET", "POST"])
@@ -35,16 +37,20 @@ def profile(user_id):
     if int(user_id) == int(current_user.id):
         return render_template("profile.html", user=current_user, form=None)
     else:
-        user = User.query.get(int(user_id))
-        return render_template("profile.html", user=user, form=None)
-
+        return render_template("profile.html", user=current_user, form=None, message="Acesso negado. Você não pode acessar o perfil de outro usuário")
+    
+@app.route("/logout")
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for("homepage"))
 
 @app.route("/createshow", methods=["GET", "POST"])
 @login_required
 def createshow():
     formCreateShow = FormCreateShow()
     if not current_user.adm:
-        return render_template("show.html", message="Acesso negado. Somente administradores podem acessar esta página.")
+        return render_template("shows.html", message="Acesso negado. Somente administradores podem acessar esta página.")
     else:
         if formCreateShow.validate_on_submit():
             archive = formCreateShow.coverImage.data
@@ -58,7 +64,7 @@ def createshow():
     return render_template("createshow.html", form=formCreateShow)
 
 @app.route("/shows")
-def show():
+def shows():
     shows = Show.query.order_by(Show.name.desc()).all()
     return render_template("shows.html", shows=shows)
 
