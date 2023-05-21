@@ -1,0 +1,7 @@
+<nav>
+    <a href="{{url_for('shows')}}">Espetáculos</a>
+    <a href="{{ url_for('profile', user_id=current_user.id) }}">Perfil</a>
+    {%if current_user.adm:%}
+        <a href="{{url_for('createshow')}}">Adicionar um Espetáculo</a>
+    {%endif%}
+</nav>
