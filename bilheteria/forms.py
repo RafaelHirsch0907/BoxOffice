@@ -26,10 +26,10 @@ class FormCreateShow(FlaskForm):
     name = StringField("Name", validators=[DataRequired()])
     synopsis = StringField("Synopsis", validators=[DataRequired()])
     date = DateField("Date", validators=[DataRequired()])
-    #ticketsAvailable = IntegerField("Tickets Available", validators=[DataRequired()])
-    #vipTicketsAvailable = IntegerField("VIP Tickets Available", validators=[DataRequired()])
-
     submitButton = SubmitField("Upload Show")
+
+class FormCreateTicket(FlaskForm):
+    
 
 #class FormShow(FlaskForm):
 #    email = StringField("Email", validators=[DataRequired(), Email()])
