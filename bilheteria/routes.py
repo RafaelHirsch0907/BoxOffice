@@ -27,8 +27,8 @@ def createlogin():
         
         login_user(user, remember=True)
         return redirect(url_for("profile", user_id=user.id))
-    else:
-        return redirect(url_for("createlogin", message="Email ou senha incorretos, tente novamente"))
+    #else:
+    #   return redirect(url_for("createlogin", message="Email ou senha incorretos, tente novamente"))
     return render_template("createlogin.html", form=formCreateLogin)
 
 @app.route("/profile/<user_id>", methods=["GET", "POST"])

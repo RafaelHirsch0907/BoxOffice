@@ -13,7 +13,7 @@ class FormCreateLogin(FlaskForm):
     username = StringField("Username", validators=[DataRequired()])
     password = PasswordField("Password", validators=[DataRequired(), Length(6,25)])
     confirm_password = PasswordField("Confirm password", validators=[DataRequired(), EqualTo("password")])
-    vip = BooleanField("VIP", validators=[DataRequired()])
+    vip = BooleanField("VIP")
     submitButton = SubmitField("Create Login")
 
     def validate_email(self, email):
@@ -26,10 +26,10 @@ class FormCreateShow(FlaskForm):
     name = StringField("Name", validators=[DataRequired()])
     synopsis = StringField("Synopsis", validators=[DataRequired()])
     date = DateField("Date", validators=[DataRequired()])
-    #ticketsAvailable = IntegerField("Tickets Available", validators=[DataRequired()])
-    #vipTicketsAvailable = IntegerField("VIP Tickets Available", validators=[DataRequired()])
-
     submitButton = SubmitField("Upload Show")
+
+#class FormCreateTicket(FlaskForm):
+    
 
 #class FormShow(FlaskForm):
 #    email = StringField("Email", validators=[DataRequired(), Email()])

@@ -25,8 +25,8 @@ class Ticket(dataBase.Model):
     userId = dataBase.Column(dataBase.Integer, dataBase.ForeignKey('user.id'), nullable=False)
     showId = dataBase.Column(dataBase.Integer, dataBase.ForeignKey('show.id'), nullable=False)
     vip = dataBase.Column(dataBase.Boolean, nullable=False, default=False)
-    seat = dataBase.Column(dataBase.String, nullable=False)
-    sales = dataBase.relationship("Sale", backref="sale", lazy=True)
+    seatId = dataBase.Column(dataBase.Integer, dataBase.ForeignKey('seat.id'), nullable=False)
+    sales = dataBase.relationship("Sale", backref="ticket", lazy=True)
 
 
 class Sale(dataBase.Model):
@@ -42,8 +42,19 @@ class Show(dataBase.Model):
     id = dataBase.Column(dataBase.Integer, primary_key=True)
     name = dataBase.Column(dataBase.String, nullable=False)
     synopsis = dataBase.Column(dataBase.String, nullable=False)
-    ticketsAvailable = dataBase.Column(dataBase.Integer, nullable=False, default=85)
-    vipTicketsAvailable = dataBase.Column(dataBase.Integer, nullable=False, default=15)
+    ticketsAvailable = dataBase.Column(dataBase.Integer, nullable=False, default=90)
+    vipTicketsAvailable = dataBase.Column(dataBase.Integer, nullable=False, default=10)
     coverImage = dataBase.Column(dataBase.String, default="default.png")
     date = dataBase.Column(dataBase.DateTime, nullable=False, unique=True)
     tickets = dataBase.relationship("Ticket", backref="show", lazy=True)
+    seats = dataBase.relationship("Seat", backref="show", lazy=True)
+
+class Seat(dataBase.Model):
+    id = dataBase.Column(dataBase.Integer, primary_key=True)
+    row = dataBase.Column(dataBase.String, nullable=False)
+    column = dataBase.Column(dataBase.Integer, nullable=False)
+    seat = dataBase.Column(dataBase.String, nullable=False)
+    vip = dataBase.Column(dataBase.Boolean, nullable=False)
+    available = dataBase.Column(dataBase.Boolean, default=True)
+    showId = dataBase.Column(dataBase.Integer, dataBase.ForeignKey('show.id'), nullable=False)
+    tickets = dataBase.relationship("Ticket", backref="seat", lazy=True)  
