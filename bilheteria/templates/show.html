@@ -1,0 +1,15 @@
+{% extends "homepage.html" %}
+
+{% block title %}
+    {{ show }}
+{% endblock %}
+
+{% block body %}
+    <body>
+        {% include "navbar.html" %}
+        <h1>{{ show.name }}</h1>
+        <img src="{{ url_for('static', filename='photos_theater/{}'.format(show.coverImage)) }}" alt="">
+        <h2>{{ show.synopsis }}</h2>
+        <strong>Data:</strong> {{ show.date.strftime('%d/%m/%Y') }}
+    </body>
+{% endblock %}

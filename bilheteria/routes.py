@@ -1,4 +1,4 @@
-from flask import render_template, url_for, redirect
+from flask import render_template, url_for, redirect, flash
 from bilheteria import app, dataBase, bcrypt
 from flask_login import login_required, login_user, logout_user, current_user
 from bilheteria.forms import FormCreateShow, FormLogin, FormCreateLogin
@@ -68,7 +68,11 @@ def shows():
     shows = Show.query.order_by(Show.name.desc()).all()
     return render_template("shows.html", shows=shows)
 
-#@app.route("/show/<show_id>")
-#def show(show_id):
-
-#    return render_template("show.html", show=show)
+@app.route("/show/<show_id>")
+def show(show_id):
+    show = Show.query.get(show_id)
+    if show:
+        return render_template("show.html", show=show, user=current_user, form=None)
+    else:
+        flash("Espetáculo não encontrado")
+        return redirect(url_for("shows"))

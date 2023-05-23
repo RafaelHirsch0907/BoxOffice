@@ -8,8 +8,11 @@ Perfil - {{user}}
 <body>
     {%include "navbar.html"%}
     <h1>Perfil de {{user.username}}</h1>
+    {%if user.vip%}
+    <img src="{{ url_for('static', filename='photos_site/vip.png') }}" alt="">
+    {%endif%}
     
-
+    <br>
     <a href="{{url_for('logout')}}">Sair</a>
     
     {%for ticket in user.tickets%}
