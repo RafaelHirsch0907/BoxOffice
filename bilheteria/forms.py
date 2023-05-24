@@ -28,18 +28,7 @@ class FormCreateShow(FlaskForm):
     date = DateField("Date", validators=[DataRequired()])
     submitButton = SubmitField("Upload Show")
 
-#class FormCreateTicket(FlaskForm):
-    
+class FormCreateTicket(FlaskForm):
+    vip = BooleanField("VIP")
 
-#class FormShow(FlaskForm):
-#    email = StringField("Email", validators=[DataRequired(), Email()])
-#    username = StringField("Username", validators=[DataRequired()])
-#    password = PasswordField("Password", validators=[DataRequired(), Length(6,25)])
-#    confirm_password = PasswordField("Confirm password", validators=[DataRequired(), EqualTo("password")])
-#    vip = BooleanField("VIP", validators=[DataRequired()])
-#    submitButton = SubmitField("Create Login")
-#
-#    def validate_date(self, date):
-#        show = User.query.filter_by(date=date.data).first()
-#        if show:
-#            return ValidationError("There is already a show registered on that date, try another date!")
+#class FormCreateSale(FlaskForm):
