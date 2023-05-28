@@ -11,6 +11,13 @@ Perfil - {{user}}
     {%if user.vip%}
     <img src="{{ url_for('static', filename='photos_site/vip.png') }}" alt="">
     {%endif%}
+    <br>
+    {%if user.notwhithdrawn == 2%}
+    Você está perto de se tornar um usuario inválido para compras. Evite isso retirando os seus ingressos em menos de 48h a partir da compra.
+    {%endif%}
+    {%if user.notwhithdrawn == 3%}
+    Você está atualmente inválido  para compras, pois deixou de retirar 3 ingressos em um intervalo de 1 ano.
+    {%endif%}
     
     <br>
     <a href="{{url_for('logout')}}">Sair</a>
