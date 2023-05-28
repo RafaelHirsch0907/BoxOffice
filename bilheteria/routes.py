@@ -102,6 +102,8 @@ def shows():
     shows = Show.query.order_by(Show.name.desc()).all()
     return render_template("shows.html", shows=shows)
 
+from sqlalchemy import func
+
 @app.route("/show/<show_id>")
 def show(show_id):
     show = Show.query.get(show_id)
@@ -111,18 +113,38 @@ def show(show_id):
         form_create_ticket = FormCreateTicket(show_id=show_id)  # Atribuição de valor à variável form_create_ticket
     
         if form_create_ticket.validate_on_submit():
-            if current_user.vip:
-                ticket = Ticket(status=True, userId=current_user.id, showId=show_id, vip=FormCreateTicket.vip.data(), seatId=form_create_ticket.seatId.data())
-                dataBase.session.add(ticket)
-                dataBase.session.commit()
+            max_id = dataBase.session.query(func.max(Ticket.id)).scalar()
+            if max_id is None:
+                new_id = 1
             else:
-                ticket = Ticket(status=True, userId=current_user.id, showId=show_id, vip=False, seatId=form_create_ticket.seatId.data())
-                dataBase.session.add(ticket)
-                dataBase.session.commit()
+                new_id = max_id + 1
+            
+            if current_user.vip:
+                ticket = Ticket(
+                    id=new_id,
+                    status=True,
+                    userId=current_user.id,
+                    showId=show_id,
+                    vip=FormCreateTicket.vip.data(),
+                    seatId=form_create_ticket.seatId.data()
+                )
+            else:
+                ticket = Ticket(
+                    id=new_id,
+                    status=True,
+                    userId=current_user.id,
+                    showId=show_id,
+                    vip=False,
+                    seatId=form_create_ticket.seatId.data()
+                )
+                
+            dataBase.session.add(ticket)
+            dataBase.session.commit()
     
         return render_template("show.html", show=show, user=current_user, form=form_create_ticket)
     
     else:
         flash("Espetáculo não encontrado")
         return redirect(url_for("shows"))
+
 
