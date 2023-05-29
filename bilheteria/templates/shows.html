@@ -1,12 +1,20 @@
-{%extends "homepage.html"%}
+{% extends "homepage.html" %}
 
-{%block body%}
-{%include "navbar.html"%}
+{% block title %}
+    {{ show }}
+{% endblock %}
 
-<h1>Espetáculos</h1>
+{% block body %}
+    <body>
+        {% include "navbar.html" %}
+        <h1>Espetáculos</h1>
 
-{%for show in shows%}
-    <img src="{{url_for('static', filename='photos_theater/{}'.format(show.coverImage))}}" alt="">
-{%endfor%}
-
-{%endblock%}
+        {% set sorted_shows = shows|sort(attribute='name') %}
+        {% for show in sorted_shows %}
+            <a href="{{ url_for('show', show_id=show.id) }}">
+                <img src="{{ url_for('static', filename='photos_theater/' ~ show.coverImage) }}" alt="">
+            </a>
+            {{ show.name }}
+        {% endfor %}
+    </body>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends "homepage.html" %}
+
+{% block title %}
+    {{ show }}
+{% endblock %}
+
+{% block body %}
+    <body>
+        {% include "navbar.html" %}
+        <h1>{{ show.name }}</h1>
+        <img src="{{ url_for('static', filename='photos_theater/{}'.format(show.coverImage)) }}" alt="">
+        <h2>{{ show.synopsis }}</h2>
+        <strong>Data:</strong> {{ show.date.strftime('%d/%m/%Y') }}
+
+        <br>
+        <h2>Comprar ingresso:</h2>
+        <h3>Valor ingresso: R$ 50,00</h3>
+        <strong>OBS: após reservados os ingressos devem ser retirados em até 48h.</strong> 
+
+        <form method="POST" enctype="multipart/form-data">
+            {{form.csrf_token}}
+
+            {{ form.vip.label() }}
+            {{ form.vip() }}
+
+            {{ form.seatId.label() }}
+            {{ form.seatId() }}
+        </form>
+    </body>
+{% endblock %}

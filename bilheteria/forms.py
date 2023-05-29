@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, FileField, BooleanField, IntegerField, DateField
+from wtforms import StringField, PasswordField, SubmitField, FileField, BooleanField, SelectField, DateField
 from wtforms.validators import DataRequired, Email, EqualTo, Length, ValidationError
-from bilheteria.models import User, Show
+from bilheteria.models import User, Show, Seat
 
 class FormLogin(FlaskForm):
     email = StringField("Email", validators=[DataRequired(), Email()])
@@ -28,18 +28,14 @@ class FormCreateShow(FlaskForm):
     date = DateField("Date", validators=[DataRequired()])
     submitButton = SubmitField("Upload Show")
 
-#class FormCreateTicket(FlaskForm):
-    
+class FormCreateTicket(FlaskForm):
+    vip = BooleanField("VIP")
+    seatId = SelectField("Assento", choices=[], validators=[DataRequired()])
 
-#class FormShow(FlaskForm):
-#    email = StringField("Email", validators=[DataRequired(), Email()])
-#    username = StringField("Username", validators=[DataRequired()])
-#    password = PasswordField("Password", validators=[DataRequired(), Length(6,25)])
-#    confirm_password = PasswordField("Confirm password", validators=[DataRequired(), EqualTo("password")])
-#    vip = BooleanField("VIP", validators=[DataRequired()])
-#    submitButton = SubmitField("Create Login")
-#
-#    def validate_date(self, date):
-#        show = User.query.filter_by(date=date.data).first()
-#        if show:
-#            return ValidationError("There is already a show registered on that date, try another date!")
+    def __init__(self, *args, **kwargs):
+        super(FormCreateTicket, self).__init__(*args, **kwargs)
+        show_id = kwargs.get('show_id')
+        self.seatId.choices = [(seat.id, seat.seat) for seat in Seat.query.filter_by(showId=show_id, available=True).order_by(Seat.seat).all()]
+
+class FormCreateSale(FlaskForm):
+    delivery = BooleanField("Entrega em domicílio", validators=[DataRequired()])

@@ -1,9 +1,10 @@
-from flask import render_template, url_for, redirect
+from flask import render_template, url_for, redirect, flash
 from bilheteria import app, dataBase, bcrypt
 from flask_login import login_required, login_user, logout_user, current_user
-from bilheteria.forms import FormCreateShow, FormLogin, FormCreateLogin
-from bilheteria.models import User, Show
+from bilheteria.forms import FormCreateShow, FormLogin, FormCreateLogin, FormCreateTicket
+from bilheteria.models import User, Show, Ticket
 from werkzeug.utils import secure_filename
+from sqlalchemy import func
 import os
 
 @app.route("/", methods=["GET", "POST"])
@@ -21,14 +22,30 @@ def createlogin():
     formCreateLogin = FormCreateLogin()
     if formCreateLogin.validate_on_submit():
         password = bcrypt.generate_password_hash(formCreateLogin.password.data).decode('utf-8')
-        user = User(username=formCreateLogin.username.data, password=password, email=formCreateLogin.email.data, regular=True, vip=formCreateLogin.vip.data, adm=False, notwhithdrawn=0)
+        
+        max_id = dataBase.session.query(func.max(User.id)).scalar()
+        if max_id is None:
+            new_id = 1
+        else:
+            new_id = max_id + 1
+            
+        user = User(
+            id=new_id,
+            username=formCreateLogin.username.data,
+            password=password,
+            email=formCreateLogin.email.data,
+            regular=True,
+            vip=formCreateLogin.vip.data,
+            adm=False,
+            notwhithdrawn=0
+        )
+        
         dataBase.session.add(user)
         dataBase.session.commit()
         
         login_user(user, remember=True)
         return redirect(url_for("profile", user_id=user.id))
-    #else:
-    #   return redirect(url_for("createlogin", message="Email ou senha incorretos, tente novamente"))
+    
     return render_template("createlogin.html", form=formCreateLogin)
 
 @app.route("/profile/<user_id>", methods=["GET", "POST"])
@@ -57,9 +74,26 @@ def createshow():
             securityName = secure_filename(archive.filename)
             path = os.path.join(os.path.abspath(os.path.dirname(__file__)), app.config["UPLOAD_FOLDER"], securityName)
             archive.save(path)
-            show = Show(name=formCreateShow.name.data, synopsis=formCreateShow.synopsis.data, coverImage=securityName, date=formCreateShow.date.data, ticketsAvailable=85, vipTicketsAvailable=15)
+            
+            max_id = dataBase.session.query(func.max(Show.id)).scalar()
+            if max_id is None:
+                new_id = 1
+            else:
+                new_id = max_id + 1
+            
+            show = Show(
+                id=new_id,
+                name=formCreateShow.name.data,
+                synopsis=formCreateShow.synopsis.data,
+                coverImage=securityName,
+                date=formCreateShow.date.data,
+                ticketsAvailable=85,
+                vipTicketsAvailable=15
+            )
+            
             dataBase.session.add(show)
             dataBase.session.commit()
+            
             return redirect(url_for("shows"))
     return render_template("createshow.html", form=formCreateShow)
 
@@ -68,7 +102,49 @@ def shows():
     shows = Show.query.order_by(Show.name.desc()).all()
     return render_template("shows.html", shows=shows)
 
-#@app.route("/show/<show_id>")
-#def show(show_id):
+from sqlalchemy import func
 
-#    return render_template("show.html", show=show)
+@app.route("/show/<show_id>")
+def show(show_id):
+    show = Show.query.get(show_id)
+    form_create_ticket = None  # Inicialização da variável form_create_ticket
+    
+    if show:
+        form_create_ticket = FormCreateTicket(show_id=show_id)  # Atribuição de valor à variável form_create_ticket
+    
+        if form_create_ticket.validate_on_submit():
+            max_id = dataBase.session.query(func.max(Ticket.id)).scalar()
+            if max_id is None:
+                new_id = 1
+            else:
+                new_id = max_id + 1
+            
+            if current_user.vip:
+                ticket = Ticket(
+                    id=new_id,
+                    status=True,
+                    userId=current_user.id,
+                    showId=show_id,
+                    vip=FormCreateTicket.vip.data(),
+                    seatId=form_create_ticket.seatId.data()
+                )
+            else:
+                ticket = Ticket(
+                    id=new_id,
+                    status=True,
+                    userId=current_user.id,
+                    showId=show_id,
+                    vip=False,
+                    seatId=form_create_ticket.seatId.data()
+                )
+                
+            dataBase.session.add(ticket)
+            dataBase.session.commit()
+    
+        return render_template("show.html", show=show, user=current_user, form=form_create_ticket)
+    
+    else:
+        flash("Espetáculo não encontrado")
+        return redirect(url_for("shows"))
+
+
