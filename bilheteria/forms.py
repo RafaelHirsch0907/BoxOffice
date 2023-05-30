@@ -1,12 +1,12 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, FileField, BooleanField, SelectField, DateField
+from wtforms import StringField, PasswordField, SubmitField, FileField, BooleanField, SelectField, DateField, FloatField
 from wtforms.validators import DataRequired, Email, EqualTo, Length, ValidationError
 from bilheteria.models import User, Show, Seat
 
 class FormLogin(FlaskForm):
     email = StringField("Email", validators=[DataRequired(), Email()])
     password = PasswordField("Password", validators=[DataRequired()])
-    submitButton = SubmitField("Submit")
+    submitButton = SubmitField("Login")
 
 class FormCreateLogin(FlaskForm):
     email = StringField("Email", validators=[DataRequired(), Email()])
@@ -30,12 +30,17 @@ class FormCreateShow(FlaskForm):
 
 class FormCreateTicket(FlaskForm):
     vip = BooleanField("VIP")
+    delivery = BooleanField("Entrega em domicílio")
+    price = FloatField("Price", validators=[DataRequired()])
     seatId = SelectField("Assento", choices=[], validators=[DataRequired()])
+
 
     def __init__(self, *args, **kwargs):
         super(FormCreateTicket, self).__init__(*args, **kwargs)
         show_id = kwargs.get('show_id')
         self.seatId.choices = [(seat.id, seat.seat) for seat in Seat.query.filter_by(showId=show_id, available=True).order_by(Seat.seat).all()]
+    
+    submitButton = SubmitField("Comprar")
 
-class FormCreateSale(FlaskForm):
-    delivery = BooleanField("Entrega em domicílio", validators=[DataRequired()])
+#class FormCreateSale(FlaskForm):
+#    delivery = BooleanField("Entrega em domicílio", validators=[DataRequired()])

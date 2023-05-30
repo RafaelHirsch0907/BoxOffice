@@ -104,7 +104,7 @@ def shows():
 
 from sqlalchemy import func
 
-@app.route("/show/<show_id>")
+@app.route("/show/<show_id>", methods=['GET', 'POST'])
 def show(show_id):
     show = Show.query.get(show_id)
     form_create_ticket = None  # Inicialização da variável form_create_ticket
@@ -120,23 +120,26 @@ def show(show_id):
                 new_id = max_id + 1
             
             if current_user.vip:
-                ticket = Ticket(
-                    id=new_id,
-                    status=True,
-                    userId=current_user.id,
-                    showId=show_id,
-                    vip=FormCreateTicket.vip.data(),
-                    seatId=form_create_ticket.seatId.data()
-                )
+                if form_create_ticket.vip.data:
+                    price = 0
+                else:
+                    price = 50
             else:
-                ticket = Ticket(
-                    id=new_id,
-                    status=True,
-                    userId=current_user.id,
-                    showId=show_id,
-                    vip=False,
-                    seatId=form_create_ticket.seatId.data()
-                )
+                if form_create_ticket.delivery.data:
+                    price = 65
+                else:
+                    price = 50
+
+            ticket = Ticket(
+                id=new_id,
+                status=True,
+                userId=current_user.id,
+                showId=show_id,
+                vip=form_create_ticket.vip.data,
+                delivery=form_create_ticket.delivery.data,
+                seatId=form_create_ticket.seatId.data,
+                price=price
+            )
                 
             dataBase.session.add(ticket)
             dataBase.session.commit()
@@ -146,5 +149,6 @@ def show(show_id):
     else:
         flash("Espetáculo não encontrado")
         return redirect(url_for("shows"))
+
 
 
