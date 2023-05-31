@@ -22,8 +22,6 @@ Perfil - {{user}}
     <br>
     <a href="{{url_for('logout')}}">Sair</a>
     
-    {%for ticket in user.tickets%}
-        <!--<img src="{{url_for('static', filename='photos_posts/{}'.format(photo.image))}}" alt="">-->
-    {%endfor%}
+    
 </body>
 {% endblock %}

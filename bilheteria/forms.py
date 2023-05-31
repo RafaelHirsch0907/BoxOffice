@@ -32,8 +32,14 @@ class FormCreateTicket(FlaskForm):
     vip = BooleanField("VIP")
     delivery = BooleanField("Entrega em domicílio")
     price = IntegerField("Price")
-    seatId = IntegerField("Assento", validators=[DataRequired()] )
+    seatId = SelectField("Assento", coerce=int, validators=[DataRequired()])
     submitButton = SubmitField("Comprar")
+
+    def __init__(self, *args, **kwargs):
+        super(FormCreateTicket, self).__init__(*args, **kwargs)
+        show_id = kwargs.get('show_id')
+        self.seatId.choices = [(seat.id, seat.seat) for seat in Seat.query.filter_by(showId=show_id, available=True).order_by(Seat.seat.asc()).all()]
+
 
 
 
