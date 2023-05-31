@@ -2,7 +2,7 @@ from flask import render_template, url_for, redirect, flash
 from bilheteria import app, dataBase, bcrypt
 from flask_login import login_required, login_user, logout_user, current_user
 from bilheteria.forms import FormCreateShow, FormLogin, FormCreateLogin, FormCreateTicket
-from bilheteria.models import User, Show, Ticket
+from bilheteria.models import User, Show, Ticket, Seat
 from werkzeug.utils import secure_filename
 from sqlalchemy import func
 import os
@@ -107,18 +107,15 @@ from sqlalchemy import func
 @app.route("/show/<show_id>", methods=['GET', 'POST'])
 def show(show_id):
     show = Show.query.get(show_id)
-    form_create_ticket = None  # Inicialização da variável form_create_ticket
+    form_create_ticket = None
     
     if show:
-        form_create_ticket = FormCreateTicket(show_id=show_id)  # Atribuição de valor à variável form_create_ticket
+        form_create_ticket = FormCreateTicket(show_id=show_id)
     
         if form_create_ticket.validate_on_submit():
-            max_id = dataBase.session.query(func.max(Ticket.id)).scalar()
-            if max_id is None:
-                new_id = 1
-            else:
-                new_id = max_id + 1
-            
+            max_id = Ticket.query.with_entities(func.max(Ticket.id)).scalar()
+            new_id = (max_id or 0) + 1
+
             if current_user.vip:
                 if form_create_ticket.vip.data:
                     price = 0
@@ -130,19 +127,25 @@ def show(show_id):
                 else:
                     price = 50
 
-            ticket = Ticket(
-                id=new_id,
-                status=True,
-                userId=current_user.id,
-                showId=show_id,
-                vip=form_create_ticket.vip.data,
-                delivery=form_create_ticket.delivery.data,
-                seatId=form_create_ticket.seatId.data,
-                price=price
-            )
+            seat = Seat.query.filter_by(seat=form_create_ticket.seatId.data, showId=show_id).first()
+
+            if seat:
+                ticket = Ticket(
+                    id=new_id,
+                    status=True,
+                    userId=current_user.id,
+                    showId=show_id,
+                    vip=form_create_ticket.vip.data,
+                    delivery=form_create_ticket.delivery.data,
+                    seatId=form_create_ticket.seatId.data,  # Atribuir o ID do assento
+                    price=price
+                )
+
+                dataBase.session.add(ticket)
+                dataBase.session.commit()
                 
-            dataBase.session.add(ticket)
-            dataBase.session.commit()
+            else:
+                flash("Assento não encontrado")
     
         return render_template("show.html", show=show, user=current_user, form=form_create_ticket)
     

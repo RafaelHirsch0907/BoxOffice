@@ -28,7 +28,7 @@ class Ticket(dataBase.Model):
     vip = dataBase.Column(dataBase.Boolean, nullable=False, default=False)
     price = dataBase.Column(dataBase.Numeric, nullable=False)
     delivery = dataBase.Column(dataBase.Boolean, nullable=False)
-    createDate = dataBase.Column(dataBase.DateTime, nullable=False, default=datetime.utcnow())
+    createdate = dataBase.Column(dataBase.DateTime, nullable=False, default=datetime.utcnow())
     seatId = dataBase.Column(dataBase.Integer, dataBase.ForeignKey('seat.id'), nullable=False)
     
 
