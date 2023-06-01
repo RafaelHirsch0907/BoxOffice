@@ -5,6 +5,8 @@ Perfil - {{ user.username }}
 {% endblock %}
 
 {% block body %}
+    {% include "navbar.html" %}
+
     <h1>Perfil de {{ user.username }}</h1>
     {% if user.vip %}
         <img src="{{ url_for('static', filename='photos_site/vip.png') }}" alt="">

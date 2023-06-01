@@ -11,10 +11,12 @@
 
         {% set sorted_shows = shows|sort(attribute='name') %}
         {% for show in sorted_shows %}
-            <a href="{{ url_for('show', show_id=show.id) }}">
-                <img src="{{ url_for('static', filename='photos_theater/' ~ show.coverImage) }}" alt="">
-            </a>
-            {{ show.name }}
+            {% if show.ticketsAvailable + show.vipTicketsAvailable > 0 %}
+                <a href="{{ url_for('show', show_id=show.id) }}">
+                    <img src="{{ url_for('static', filename='photos_theater/' ~ show.coverImage) }}" alt="">
+                </a>
+                {{ show.name }}
+            {% endif %}
         {% endfor %}
     </body>
 {% endblock %}

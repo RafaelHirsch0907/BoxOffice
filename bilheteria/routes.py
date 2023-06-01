@@ -139,6 +139,10 @@ def shows():
 @app.route("/show/<show_id>", methods=["GET", "POST"])
 @login_required
 def show(show_id):
+    if not current_user.regular:
+        flash("Acesso negado. Somente usuários regulares podem acessar esta página.")
+        return redirect(url_for("shows"))
+
     show = Show.query.get(show_id)
     form_create_ticket = None
 
