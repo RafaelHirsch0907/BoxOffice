@@ -15,16 +15,24 @@
         <br>
         <h2>Comprar ingresso:</h2>
         <h3>Valor ingresso: R$ 50,00</h3>
-        <strong>OBS: após reservados os ingressos devem ser retirados em até 48h.</strong> 
+        <h3>Taxa de entrega: R$ 15,00</h3>
+        <strong>OBS: após reservados, os ingressos comuns devem ser retirados em até 48h.</strong> 
 
         <form method="POST" enctype="multipart/form-data">
             {{form.csrf_token}}
 
+            {%if current_user.vip%}
             {{ form.vip.label() }}
             {{ form.vip() }}
+            {%endif%}
+
+            {{ form.delivery.label() }}
+            {{ form.delivery() }}
 
             {{ form.seatId.label() }}
             {{ form.seatId() }}
+
+            {{ form.submitButton() }}
         </form>
     </body>
 {% endblock %}

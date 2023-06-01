@@ -16,7 +16,7 @@ class User(dataBase.Model, UserMixin):
     adm = dataBase.Column(dataBase.Boolean, nullable=False, default=False)
     notwhithdrawn = dataBase.Column(dataBase.Integer, default=0, nullable=False)
     tickets = dataBase.relationship("Ticket", backref="user", lazy=True)
-    sales = dataBase.relationship("Sale", backref="user", lazy=True)
+    
     
 
 class Ticket(dataBase.Model):
@@ -26,18 +26,22 @@ class Ticket(dataBase.Model):
     userId = dataBase.Column(dataBase.Integer, dataBase.ForeignKey('user.id'), nullable=False)
     showId = dataBase.Column(dataBase.Integer, dataBase.ForeignKey('show.id'), nullable=False)
     vip = dataBase.Column(dataBase.Boolean, nullable=False, default=False)
-    seatId = dataBase.Column(dataBase.Integer, dataBase.ForeignKey('seat.id'), nullable=False)
-    sales = dataBase.relationship("Sale", backref="ticket", lazy=True)
-
-
-class Sale(dataBase.Model):
-    id = dataBase.Column(dataBase.Integer, primary_key=True)
-    createDate = dataBase.Column(dataBase.DateTime, nullable=False, default=datetime.utcnow())
-    ticketId = dataBase.Column(dataBase.Integer, dataBase.ForeignKey('ticket.id'), nullable=False)
-    userId = dataBase.Column(dataBase.Integer, dataBase.ForeignKey('user.id'), nullable=False)
-    delivery = dataBase.Column(dataBase.String, nullable=False)
-    amountTickets = dataBase.Column(dataBase.Integer, nullable=False)
     price = dataBase.Column(dataBase.Numeric, nullable=False)
+    delivery = dataBase.Column(dataBase.Boolean, nullable=False)
+    createdate = dataBase.Column(dataBase.DateTime, nullable=False, default=datetime.utcnow())
+    withdrawn = dataBase.Column(dataBase.Boolean, nullable=False)
+    seatId = dataBase.Column(dataBase.Integer, dataBase.ForeignKey('seat.id'), nullable=False)
+    
+
+
+#class Sale(dataBase.Model):
+#    id = dataBase.Column(dataBase.Integer, primary_key=True)
+#    createDate = dataBase.Column(dataBase.DateTime, nullable=False, default=datetime.utcnow())
+#    ticketId = dataBase.Column(dataBase.Integer, dataBase.ForeignKey('ticket.id'), nullable=False)
+#    userId = dataBase.Column(dataBase.Integer, dataBase.ForeignKey('user.id'), nullable=False)
+#    delivery = dataBase.Column(dataBase.Boolean, nullable=False)
+#    amountTickets = dataBase.Column(dataBase.Integer, nullable=False)
+#    price = dataBase.Column(dataBase.Numeric, nullable=False)
 
 
 class Show(dataBase.Model):

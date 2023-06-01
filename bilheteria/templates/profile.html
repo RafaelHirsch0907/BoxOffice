@@ -1,29 +1,60 @@
 {% extends "homepage.html" %}
 
 {% block title %}
-Perfil - {{user}}
+Perfil - {{ user.username }}
 {% endblock %}
 
 {% block body %}
-<body>
-    {%include "navbar.html"%}
-    <h1>Perfil de {{user.username}}</h1>
-    {%if user.vip%}
-    <img src="{{ url_for('static', filename='photos_site/vip.png') }}" alt="">
-    {%endif%}
+    {% include "navbar.html" %}
+
+    <h1>Perfil de {{ user.username }}</h1>
+    {% if user.vip %}
+        <img src="{{ url_for('static', filename='photos_site/vip.png') }}" alt="">
+    {% endif %}
     <br>
-    {%if user.notwhithdrawn == 2%}
-    Você está perto de se tornar um usuario inválido para compras. Evite isso retirando os seus ingressos em menos de 48h a partir da compra.
-    {%endif%}
-    {%if user.notwhithdrawn == 3%}
-    Você está atualmente inválido  para compras, pois deixou de retirar 3 ingressos em um intervalo de 1 ano.
-    {%endif%}
-    
+    {% if user.notwhithdrawn == 2 %}
+        <p>Você está perto de se tornar um usuário inválido para compras. Evite isso retirando os seus ingressos em menos de 48h a partir da compra.</p>
+    {% endif %}
+    {% if user.notwhithdrawn == 3 %}
+        <p>Você está atualmente inválido para compras, pois deixou de retirar 3 ingressos em um intervalo de 1 ano.</p>
+    {% endif %}
+
+    <h2>Meus Tickets</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Espetáculo</th>
+                <th>Assento</th>
+                <th>Data</th>
+                <th>Status</th>
+                {% set show_action = false %}
+                {% for ticket in tickets %}
+                    {% if ticket.status and not ticket.withdrawn and not show_action %}
+                        {% set show_action = true %}
+                        <th>Ação</th>
+                    {% endif %}
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for ticket in tickets %}
+            <tr>
+                <td>{{ ticket.show.name }}</td>
+                <td>{{ ticket.seat_name }}</td>
+                <td>{{ ticket.show.date.strftime('%d/%m/%Y') }}</td>
+                <td>{{ "Ativo" if ticket.status else "Inativo" }}</td>
+                {% if ticket.status and not ticket.withdrawn %}
+                    <td>
+                        <form action="{{ url_for('withdraw_ticket', ticket_id=ticket.id) }}" method="POST">
+                            <input type="submit" value="Retirar">
+                        </form>
+                    </td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
     <br>
-    <a href="{{url_for('logout')}}">Sair</a>
-    
-    {%for ticket in user.tickets%}
-        <!--<img src="{{url_for('static', filename='photos_posts/{}'.format(photo.image))}}" alt="">-->
-    {%endfor%}
-</body>
+    <a href="{{ url_for('logout') }}">Sair</a>
+
 {% endblock %}
