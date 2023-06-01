@@ -29,7 +29,7 @@ Perfil - {{ user.username }}
                 <th>Status</th>
                 {% set show_action = false %}
                 {% for ticket in tickets %}
-                    {% if not ticket.withdrawn and not show_action %}
+                    {% if ticket.status and not ticket.withdrawn and not show_action %}
                         {% set show_action = true %}
                         <th>Ação</th>
                     {% endif %}
@@ -43,7 +43,7 @@ Perfil - {{ user.username }}
                 <td>{{ ticket.seat_name }}</td>
                 <td>{{ ticket.show.date.strftime('%d/%m/%Y') }}</td>
                 <td>{{ "Ativo" if ticket.status else "Inativo" }}</td>
-                {% if not ticket.withdrawn %}
+                {% if ticket.status and not ticket.withdrawn %}
                     <td>
                         <form action="{{ url_for('withdraw_ticket', ticket_id=ticket.id) }}" method="POST">
                             <input type="submit" value="Retirar">
@@ -56,4 +56,5 @@ Perfil - {{ user.username }}
     </table>
     <br>
     <a href="{{ url_for('logout') }}">Sair</a>
+
 {% endblock %}
