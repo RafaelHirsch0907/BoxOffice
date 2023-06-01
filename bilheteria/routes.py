@@ -62,7 +62,15 @@ def createlogin():
 @login_required
 def profile(user_id):
     if int(user_id) == int(current_user.id):
-        return render_template("profile.html", user=current_user, form=None)
+        tickets = Ticket.query.filter_by(userId=current_user.id).all()
+        for ticket in tickets:
+            seat = Seat.query.filter_by(id=ticket.seatId).first()
+            if seat:
+                ticket.seat = seat
+                ticket.seat_name = seat.seat
+            else:
+                ticket.seat_name = 'Seat não encontrado'
+        return render_template("profile.html", user=current_user, tickets=tickets)
     else:
         return render_template(
             "profile.html",
@@ -128,9 +136,6 @@ def shows():
     return render_template("shows.html", shows=shows)
 
 
-from sqlalchemy import func
-
-
 @app.route("/show/<show_id>", methods=["GET", "POST"])
 @login_required
 def show(show_id):
@@ -155,8 +160,6 @@ def show(show_id):
                 else:
                     price = 50
 
-            # seat = Seat.query.filter_by(seat=int(form_create_ticket.seatId.data), showId=show_id)
-
             ticket = Ticket(
                 id=new_id,
                 status=True,
@@ -164,9 +167,9 @@ def show(show_id):
                 showId=show_id,
                 vip=form_create_ticket.vip.data,
                 delivery=form_create_ticket.delivery.data,
-                seatId=int(form_create_ticket.seatId.data),  # Atribuir o ID do assento
+                seatId=int(form_create_ticket.seatId.data),
                 price=price,
-                whitdrawn=False
+                withdrawn=False
             )
 
             dataBase.session.add(ticket)
@@ -180,3 +183,17 @@ def show(show_id):
     else:
         flash("Espetáculo não encontrado")
         return redirect(url_for("shows"))
+
+@app.route("/withdraw_ticket/<ticket_id>", methods=["POST"])
+@login_required
+def withdraw_ticket(ticket_id):
+    ticket = Ticket.query.get(ticket_id)
+    
+    if ticket:
+        ticket.withdrawn = True
+        dataBase.session.commit()
+        flash("Ingresso retirado com sucesso.")
+    else:
+        flash("Falha ao retirar o ingresso. Ingresso não encontrado.")
+    
+    return redirect(url_for("profile", user_id=current_user.id))
